@@ -62,6 +62,7 @@ my-first-web/
 ├── index.html   # Page markup
 ├── style.css    # Styles (responsive, mobile-first)
 ├── script.js    # Parsing, statistics, and UI logic
+├── LICENSE      # MIT License
 └── README.md
 ```
 
@@ -124,3 +125,7 @@ Expected results:
 | `-0.0000001` | mean shows `0` |
 | `0x10`, `Infinity`, `abc` | error naming the invalid token |
 | very long digit string (e.g. 400 digits) | error: number too large or infinite |
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
