@@ -1,54 +1,114 @@
 # Descriptive Statistics Calculator
 
-A descriptive statistics calculator that runs entirely in the browser with plain HTML, CSS, and JavaScript.
+A simple, interactive web calculator for exploring descriptive statistics.
+
+![HTML](https://img.shields.io/badge/HTML-5-orange) ![CSS](https://img.shields.io/badge/CSS-3-blue) ![JavaScript](https://img.shields.io/badge/JavaScript-Vanilla-yellow) ![Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen)
+
+## Overview
+
+**Descriptive Statistics Calculator** is a lightweight, fully client-side web app that turns a raw list of numbers into a clear summary of descriptive statistics. Paste your data, press **Calculate**, and instantly see the count, sum, mean, median, mode, min, max, range, and both population and sample variance/standard deviation.
+
+It is built for students and anyone learning statistics: it shows not only the results but also exactly how your input was parsed, and explains why some values may be `N/A`. No installation, server, or internet connection is required.
+
+## Project Preview
+
+- Repository: <https://github.com/HoriusHung/my-first-web>
+- Runs locally in any modern browser — just open `index.html`.
 
 ## Features
 
-- Count (n)
-- Sum
-- Mean
-- Median
-- Mode
-- Minimum (min)
-- Maximum (max)
-- Range
-- Population variance and population standard deviation
-- Sample variance and sample standard deviation (n − 1 divisor)
+- Flexible data input: separate numbers with spaces, commas, semicolons, or newlines.
+- Computes 12 statistics: count, sum, mean, median, mode, min, max, range, population variance, population standard deviation, sample variance, sample standard deviation.
+- Clear "Parsed N numbers: ..." confirmation showing exactly how your input was read.
+- Friendly, specific error messages that name the offending token.
+- Responsive, mobile-first layout with a clean, modern "scientific + cute" visual style.
+- Pure HTML/CSS/JavaScript — no frameworks, no libraries, no build step.
 
-## Input rules
+## Statistics / Calculations
+
+| Statistic | Symbol | Formula / Rule |
+| --- | --- | --- |
+| Count | n | Number of values |
+| Sum | Σx | Σ xᵢ |
+| Mean | x̄ | (Σ xᵢ) / n |
+| Median | — | Middle value after numeric sort; average of the two middle values when n is even |
+| Mode | — | Value(s) with the highest frequency; `None` if every value appears exactly once |
+| Minimum | min | Smallest value |
+| Maximum | max | Largest value |
+| Range | R | max − min |
+| Population variance | σ² | Σ (xᵢ − x̄)² / n |
+| Population standard deviation | σ | √(population variance) |
+| Sample variance | s² | Σ (xᵢ − x̄)² / (n − 1) |
+| Sample standard deviation | s | √(sample variance) |
+
+Notes:
+
+- Median sorting uses a numeric comparison (`a - b`) on a copy of the data.
+- When multiple modes exist, all of them are listed.
+- With a single value, sample variance and sample standard deviation are undefined and shown as `N/A`.
+
+## Technologies
+
+- **HTML5** — page structure
+- **CSS3** — responsive styling (no frameworks)
+- **Vanilla JavaScript** — parsing, statistics, and UI logic
+
+No external libraries, APIs, or dependencies.
+
+## Project Structure
+
+```text
+my-first-web/
+├── index.html   # Page markup
+├── style.css    # Styles (responsive, mobile-first)
+├── script.js    # Parsing, statistics, and UI logic
+└── README.md
+```
+
+## Getting Started
+
+1. Download or clone the repository.
+2. Open `index.html` in any modern browser.
+
+That's it — no installation, no build step, no server.
+
+## Usage
+
+1. Type or paste numbers into the input box.
+2. Press **Calculate**.
+3. Read the parsed-numbers line and the results table.
+4. Press **Clear** to reset.
+
+## Input Rules
 
 - Numbers are separated by spaces, commas, semicolons, or newlines.
 - Period (`.`) is the decimal separator.
 - `1,5` is read as two numbers: `1` and `5`.
 - Each token must match `/^[+-]?(\d+\.?\d*|\.\d+)$/` — plain decimals only, optionally signed; forms like `.5` and `5.` are accepted.
 
-## Output formatting
+## Output Formatting
 
 - Up to 6 decimal places, with trailing zeros removed.
 - No thousands separator.
 - `-0` and values that round to zero are shown as `0`.
 - Undefined values are shown as `N/A`.
 
-## Error handling
+## Error Handling
 
-- Empty input → "Please enter a list of numbers."
-- Invalid token → "Invalid token: '<value>'. Only decimal numbers are allowed (period is the decimal separator)."
-- Non-finite / too large number → "Invalid token: '<value>' (number too large or infinite)."
+- Empty input → `Please enter a list of numbers.`
+- Invalid token → `Invalid token: '<value>'. Only decimal numbers are allowed (period is the decimal separator).`
+- Non-finite / too large number → `Invalid token: '<value>' (number too large or infinite).`
 
 The error names the offending token. On error, the result table is hidden and the parsed-numbers line is cleared.
 
-## Edge cases
+## Edge Cases
 
 - Single value: mean, median, min, max, range, and population statistics are computed; sample variance and sample standard deviation show `N/A`.
 - Multiple modes: all of them are listed, comma-separated.
 - No mode (every value appears exactly once): mode shows `None`.
-- More than 50 numbers: the "Parsed N numbers: ..." line lists the first 50 numbers followed by `...`.
+- More than 50 numbers: the `Parsed N numbers: ...` line lists the first 50 numbers followed by `...`.
 
-## How to run locally
-
-Open `index.html` in any modern browser. No dependencies, no build step, no server required.
-
-## Manual tests
+## Manual Testing
 
 Expected results:
 
@@ -64,13 +124,3 @@ Expected results:
 | `-0.0000001` | mean shows `0` |
 | `0x10`, `Infinity`, `abc` | error naming the invalid token |
 | very long digit string (e.g. 400 digits) | error: number too large or infinite |
-
-## Project structure
-
-```
-my-first-web/
-├── index.html   # Page markup
-├── style.css    # Styles (responsive, mobile-first)
-├── script.js    # Parsing, statistics, and UI logic
-└── README.md
-```
