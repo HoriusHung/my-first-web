@@ -1,22 +1,22 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Máy tính thống kê mô tả</title>
+  <title>Descriptive Statistics Calculator</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <main class="container">
-    <h1>Máy tính thống kê mô tả</h1>
+    <h1>Descriptive Statistics Calculator</h1>
 
-    <label for="input">Nhập dãy số:</label>
-    <textarea id="input" rows="5" placeholder="Ví dụ: 2, 4, 4, 4, 5, 5, 7, 9"></textarea>
-    <p class="note">Dấu chấm (.) là dấu thập phân. Các số cách nhau bằng dấu cách, dấu phẩy, chấm phẩy hoặc xuống dòng.</p>
+    <label for="input">Enter numbers:</label>
+    <textarea id="input" rows="5" placeholder="Example: 2, 4, 4, 4, 5, 5, 7, 9"></textarea>
+    <p class="note">Period (.) is the decimal separator. Numbers are separated by spaces, commas, semicolons, or newlines.</p>
 
     <div class="actions">
-      <button id="btnCalc" type="button">Tính toán</button>
-      <button id="btnClear" type="button" class="secondary">Xóa</button>
+      <button id="btnCalc" type="button">Calculate</button>
+      <button id="btnClear" type="button" class="secondary">Clear</button>
     </div>
 
     <p id="error" class="error" role="alert"></p>
@@ -24,18 +24,18 @@
 
     <table id="resultTable" class="result" hidden>
       <tbody>
-        <tr><th>Số lượng (n)</th><td id="r_n"></td></tr>
-        <tr><th>Tổng</th><td id="r_sum"></td></tr>
-        <tr><th>Trung bình</th><td id="r_mean"></td></tr>
-        <tr><th>Trung vị</th><td id="r_median"></td></tr>
-        <tr><th>Yếu vị (mode)</th><td id="r_mode"></td></tr>
-        <tr><th>Giá trị nhỏ nhất (min)</th><td id="r_min"></td></tr>
-        <tr><th>Giá trị lớn nhất (max)</th><td id="r_max"></td></tr>
-        <tr><th>Khoảng biến thiên</th><td id="r_range"></td></tr>
-        <tr><th>Phương sai tổng thể</th><td id="r_var_pop"></td></tr>
-        <tr><th>Độ lệch chuẩn tổng thể</th><td id="r_std_pop"></td></tr>
-        <tr><th>Phương sai mẫu</th><td id="r_var_sample"></td></tr>
-        <tr><th>Độ lệch chuẩn mẫu</th><td id="r_std_sample"></td></tr>
+        <tr><th>Count (n)</th><td id="r_n"></td></tr>
+        <tr><th>Sum</th><td id="r_sum"></td></tr>
+        <tr><th>Mean</th><td id="r_mean"></td></tr>
+        <tr><th>Median</th><td id="r_median"></td></tr>
+        <tr><th>Mode</th><td id="r_mode"></td></tr>
+        <tr><th>Minimum (min)</th><td id="r_min"></td></tr>
+        <tr><th>Maximum (max)</th><td id="r_max"></td></tr>
+        <tr><th>Range</th><td id="r_range"></td></tr>
+        <tr><th>Population variance</th><td id="r_var_pop"></td></tr>
+        <tr><th>Population standard deviation</th><td id="r_std_pop"></td></tr>
+        <tr><th>Sample variance</th><td id="r_var_sample"></td></tr>
+        <tr><th>Sample standard deviation</th><td id="r_std_sample"></td></tr>
       </tbody>
     </table>
   </main>

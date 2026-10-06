@@ -1,13 +1,13 @@
 "use strict";
 
-// Tách chuỗi thành mảng số; ném lỗi nếu ô trống hoặc có phần tử không hợp lệ.
+// Split the string into an array of numbers; throw if empty or any token is invalid.
 function parseInput(text) {
   const tokens = String(text).split(/[\s,;]+/).filter(function (t) {
     return t !== "";
   });
 
   if (tokens.length === 0) {
-    throw new Error("Vui lòng nhập dãy số.");
+    throw new Error("Please enter a list of numbers.");
   }
 
   const pattern = /^[+-]?(\d+\.?\d*|\.\d+)$/;
@@ -16,11 +16,11 @@ function parseInput(text) {
   for (let i = 0; i < tokens.length; i++) {
     const token = tokens[i];
     if (!pattern.test(token)) {
-      throw new Error("Phần tử không hợp lệ: '" + token + "'. Chỉ chấp nhận số thập phân (dấu chấm là phần thập phân).");
+      throw new Error("Invalid token: '" + token + "'. Only decimal numbers are allowed (period is the decimal separator).");
     }
     const value = Number(token);
     if (!Number.isFinite(value)) {
-      throw new Error("Phần tử không hợp lệ: '" + token + "' (số quá lớn hoặc vô hạn).");
+      throw new Error("Invalid token: '" + token + "' (number too large or infinite).");
     }
     numbers.push(value);
   }
@@ -48,8 +48,8 @@ function median(arr) {
   return (sorted[mid - 1] + sorted[mid]) / 2;
 }
 
-// Trả về mảng các yếu vị (mọi giá trị có tần suất cao nhất),
-// hoặc null nếu mọi giá trị đều xuất hiện đúng 1 lần.
+// Return all modes (every value with the highest frequency),
+// or null if every value appears exactly once.
 function modes(arr) {
   const freq = new Map();
   for (let i = 0; i < arr.length; i++) {
@@ -88,7 +88,7 @@ function std(arr, isSample) {
 function formatNumber(x) {
   if (x === null || x === undefined || Number.isNaN(x)) return "N/A";
   let rounded = Number(x.toFixed(6));
-  if (rounded === 0) return "0"; // xử lý cả -0 và giá trị làm tròn về 0
+  if (rounded === 0) return "0"; // handles both -0 and values that round to 0
   return String(rounded);
 }
 
@@ -100,7 +100,8 @@ function parsedLineText(numbers) {
   } else {
     list = numbers.map(formatNumber).join(", ");
   }
-  return "Đã đọc " + numbers.length + " số: " + list;
+  const label = numbers.length === 1 ? "Parsed 1 number: " : "Parsed " + numbers.length + " numbers: ";
+  return label + list;
 }
 
 function setText(id, text) {
@@ -129,7 +130,7 @@ function calculate() {
     setText("r_sum", formatNumber(sum(numbers)));
     setText("r_mean", formatNumber(mean(numbers)));
     setText("r_median", formatNumber(median(numbers)));
-    setText("r_mode", m === null ? "Không có" : m.map(formatNumber).join(", "));
+    setText("r_mode", m === null ? "None" : m.map(formatNumber).join(", "));
     setText("r_min", formatNumber(mn));
     setText("r_max", formatNumber(mx));
     setText("r_range", formatNumber(mx - mn));
