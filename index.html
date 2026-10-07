@@ -26,10 +26,12 @@
       <label for="input">Enter numbers:</label>
       <textarea id="input" rows="5" placeholder="Example: 2, 4, 4, 4, 5, 5, 7, 9"></textarea>
       <p class="note">Period (.) is the decimal separator. Numbers are separated by spaces, commas, semicolons, or newlines.</p>
+      <p id="inputCount" class="input-count"></p>
     </section>
 
     <section class="card controls-card">
       <div class="actions">
+        <button id="btnSample" type="button" class="secondary">Sample data</button>
         <button id="btnCalc" type="button">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
             <rect x="4" y="2" width="16" height="20" rx="3"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="11" x2="8" y2="11"/><line x1="12" y1="11" x2="12" y2="11"/><line x1="16" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="8" y2="15"/><line x1="12" y1="15" x2="12" y2="15"/><line x1="16" y1="15" x2="16" y2="15"/>
@@ -51,26 +53,44 @@
       <h2 class="section-title">Results</h2>
       <table id="resultTable" class="result" hidden>
         <tbody>
+          <tr class="group-row"><th colspan="2">Core</th></tr>
           <tr><th>Count (n)</th><td id="r_n"></td></tr>
           <tr><th>Sum</th><td id="r_sum"></td></tr>
           <tr><th>Mean</th><td id="r_mean"></td></tr>
           <tr><th>Median</th><td id="r_median"></td></tr>
           <tr><th>Mode</th><td id="r_mode"></td></tr>
+          <tr class="group-row"><th colspan="2">Range &amp; spread</th></tr>
           <tr><th>Minimum (min)</th><td id="r_min"></td></tr>
           <tr><th>Maximum (max)</th><td id="r_max"></td></tr>
           <tr><th>Range</th><td id="r_range"></td></tr>
+          <tr><th>Q1</th><td id="r_q1"></td></tr>
+          <tr><th>Q3</th><td id="r_q3"></td></tr>
+          <tr><th>IQR</th><td id="r_iqr"></td></tr>
+          <tr class="group-row"><th colspan="2">Variability</th></tr>
           <tr><th>Population variance</th><td id="r_var_pop"></td></tr>
           <tr><th>Population standard deviation</th><td id="r_std_pop"></td></tr>
           <tr><th>Sample variance</th><td id="r_var_sample"></td></tr>
           <tr><th>Sample standard deviation</th><td id="r_std_sample"></td></tr>
         </tbody>
       </table>
+      <p id="sortedView" class="sorted-view"></p>
       <p id="resultsHint" class="results-hint">Enter your data and press Calculate to see results here.</p>
       <div class="export-actions">
         <button id="btnCopy" type="button" class="secondary">Copy results</button>
         <button id="btnDownload" type="button" class="secondary">Download CSV</button>
       </div>
       <p id="exportStatus" class="export-status"></p>
+    </section>
+
+    <section class="card viz-card">
+      <h2 class="section-title">Visualization</h2>
+      <p id="vizHint" class="results-hint">Press Calculate to see the histogram and box plot.</p>
+      <div id="vizContent" hidden>
+        <h3 class="viz-subtitle">Histogram</h3>
+        <svg id="histogram" role="img" aria-label="Histogram of the input data" viewBox="0 0 560 220" preserveAspectRatio="xMidYMid meet"></svg>
+        <h3 class="viz-subtitle">Box plot</h3>
+        <svg id="boxplot" role="img" aria-label="Box plot of the input data" viewBox="0 0 560 120" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
     </section>
   </main>
 

@@ -34,6 +34,9 @@ Let `n` be the number of parsed values, `xᵢ` the values, and `x̄` their mean.
 | Minimum (min) | Smallest value |
 | Maximum (max) | Largest value |
 | Range | max − min |
+| Q1 | Median of the lower half of the sorted data (the overall median excluded when n is odd) |
+| Q3 | Median of the upper half of the sorted data (the overall median excluded when n is odd) |
+| IQR | Q3 − Q1 |
 | Population variance (σ²) | Σ (xᵢ − x̄)² / n |
 | Population standard deviation (σ) | √σ² |
 | Sample variance (s²) | Σ (xᵢ − x̄)² / (n − 1) |
@@ -43,7 +46,7 @@ Let `n` be the number of parsed values, `xᵢ` the values, and `x̄` their mean.
 
 - Population statistics divide the sum of squared deviations by `n`.
 - Sample statistics divide the same sum by `n − 1` (Bessel's correction).
-- Sample variance and standard deviation require at least two values: with a single value they are `null` internally and displayed as `N/A`.
+- Sample variance and standard deviation require at least two values: with a single value they are `null` internally and displayed as `N/A`. With a single value, Q1 and Q3 are also `null`, so IQR shows `N/A`.
 
 ## Output formatting
 
@@ -67,3 +70,17 @@ When there are more than 50 numbers, only the first 50 are listed, followed by `
 - **Copy results** puts a plain-text summary (`Label: value` per line) on the clipboard, using `navigator.clipboard` with a `textarea` + `execCommand('copy')` fallback.
 - **Download CSV** downloads `statistics.csv` with two columns: `statistic,value`. Fields containing commas, quotes, or newlines are quoted per standard CSV rules.
 - If there are no results yet (Calculate not pressed or an error occurred), both actions show `No results to copy/download yet. Press Calculate first.` instead of producing output.
+
+## Visualizations
+
+- **Histogram** (SVG): the data range is split into equal-width bins; each bar's height is the bin frequency. Hover a bar to see its range and count. The number of bins is `min(10, max(4, ceil(n / 3)))`. When all values are identical, a single bar shows their count.
+- **Box plot** (SVG): whiskers span min to max; the box spans Q1 to Q3; the median is the vertical line inside the box.
+
+Both charts are rebuilt from the parsed data each time **Calculate** is pressed and use the same numeric formatting as the results.
+
+## Extras
+
+- **Sample data** button fills the input with `4, 8, 15, 16, 23, 42, 8, 16, 4, 11`.
+- **Ctrl/Cmd + Enter** inside the textarea triggers calculation.
+- A live counter under the textarea shows how many values were detected, or a warning when some tokens look invalid.
+- A sorted-data line appears above the results after each calculation.

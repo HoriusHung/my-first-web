@@ -85,6 +85,20 @@ function std(arr, isSample) {
   return v === null ? null : Math.sqrt(v);
 }
 
+function quartiles(arr) {
+  const sorted = arr.slice().sort(function (a, b) {
+    return a - b;
+  });
+  const n = sorted.length;
+  const mid = Math.floor(n / 2);
+  const lower = sorted.slice(0, mid);
+  const upper = n % 2 === 1 ? sorted.slice(mid + 1) : sorted.slice(mid);
+  return {
+    q1: lower.length ? median(lower) : null,
+    q3: upper.length ? median(upper) : null,
+  };
+}
+
 function formatNumber(x) {
   if (x === null || x === undefined || Number.isNaN(x)) return "N/A";
   let rounded = Number(x.toFixed(6));
@@ -102,6 +116,105 @@ function parsedLineText(numbers) {
   }
   const label = numbers.length === 1 ? "Parsed 1 number: " : "Parsed " + numbers.length + " numbers: ";
   return label + list;
+}
+
+const SVG_NS = "http://www.w3.org/2000/svg";
+
+function svgEl(tag, attrs) {
+  const el = document.createElementNS(SVG_NS, tag);
+  for (const key in attrs) el.setAttribute(key, attrs[key]);
+  return el;
+}
+
+function renderHistogram(numbers) {
+  const svg = document.getElementById("histogram");
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+  const lo = Math.min.apply(null, numbers);
+  const hi = Math.max.apply(null, numbers);
+  const W = 560, H = 220, PAD = 30;
+
+  if (lo === hi) {
+    const bar = svgEl("rect", { x: W / 2 - 40, y: 40, width: 80, height: H - PAD - 40, rx: 6, fill: "#06b6d4" });
+    const t = svgEl("title", {});
+    t.textContent = "Value " + formatNumber(lo) + ": " + numbers.length;
+    bar.appendChild(t);
+    svg.appendChild(bar);
+    return;
+  }
+
+  const binCount = Math.min(10, Math.max(4, Math.ceil(numbers.length / 3)));
+  const binWidth = (hi - lo) / binCount;
+  const bins = new Array(binCount).fill(0);
+  numbers.forEach(function (x) {
+    let i = Math.floor((x - lo) / binWidth);
+    if (i >= binCount) i = binCount - 1;
+    bins[i]++;
+  });
+  const maxBin = Math.max.apply(null, bins);
+  const plotW = W - 2 * PAD;
+  const plotH = H - 2 * PAD;
+  const barW = plotW / binCount;
+
+  for (let i = 0; i < binCount; i++) {
+    const h = (bins[i] / maxBin) * plotH;
+    const rect = svgEl("rect", {
+      x: PAD + i * barW + 2,
+      y: PAD + (plotH - h),
+      width: barW - 4,
+      height: h,
+      rx: 4,
+      fill: i % 2 === 0 ? "#2563eb" : "#06b6d4",
+    });
+    const t = svgEl("title", {});
+    const a = lo + i * binWidth;
+    const b = lo + (i + 1) * binWidth;
+    t.textContent = formatNumber(a) + " to " + formatNumber(b) + ": " + bins[i];
+    rect.appendChild(t);
+    svg.appendChild(rect);
+  }
+  svg.appendChild(svgEl("line", { x1: PAD, y1: PAD + plotH, x2: W - PAD, y2: PAD + plotH, stroke: "#94a3b8", "stroke-width": 1.5 }));
+}
+
+function renderBoxPlot(numbers) {
+  const svg = document.getElementById("boxplot");
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+  const sorted = numbers.slice().sort(function (a, b) {
+    return a - b;
+  });
+  const lo = sorted[0];
+  const hi = sorted[sorted.length - 1];
+  const med = median(numbers);
+  const q = quartiles(numbers);
+  const W = 560, PAD = 40, MID = 50;
+  const span = hi === lo ? 1 : hi - lo;
+
+  function x(v) {
+    return PAD + ((v - lo) / span) * (W - 2 * PAD);
+  }
+
+  const q1 = q.q1 === null ? med : q.q1;
+  const q3 = q.q3 === null ? med : q.q3;
+
+  svg.appendChild(svgEl("line", { x1: x(lo), y1: MID, x2: x(hi), y2: MID, stroke: "#94a3b8", "stroke-width": 2 }));
+  svg.appendChild(svgEl("line", { x1: x(lo), y1: MID - 14, x2: x(lo), y2: MID + 14, stroke: "#94a3b8", "stroke-width": 2 }));
+  svg.appendChild(svgEl("line", { x1: x(hi), y1: MID - 14, x2: x(hi), y2: MID + 14, stroke: "#94a3b8", "stroke-width": 2 }));
+  const box = svgEl("rect", { x: x(q1), y: MID - 20, width: Math.max(2, x(q3) - x(q1)), height: 40, rx: 6, fill: "#ede9fe", stroke: "#8b5cf6", "stroke-width": 2 });
+  svg.appendChild(box);
+  svg.appendChild(svgEl("line", { x1: x(med), y1: MID - 20, x2: x(med), y2: MID + 20, stroke: "#2563eb", "stroke-width": 3 }));
+
+  [
+    { v: lo, label: "min" },
+    { v: q1, label: "Q1" },
+    { v: med, label: "median" },
+    { v: q3, label: "Q3" },
+    { v: hi, label: "max" },
+  ].forEach(function (item) {
+    const t = svgEl("text", { x: x(item.v), y: MID + 40, "text-anchor": "middle", "font-size": 11, fill: "#475569" });
+    t.textContent = item.label + "=" + formatNumber(item.v);
+    svg.appendChild(t);
+  });
 }
 
 function setText(id, text) {
@@ -139,10 +252,31 @@ function calculate() {
     setText("r_var_sample", formatNumber(variance(numbers, true)));
     setText("r_std_sample", formatNumber(std(numbers, true)));
 
+    const q = quartiles(numbers);
+    setText("r_q1", formatNumber(q.q1));
+    setText("r_q3", formatNumber(q.q3));
+    setText("r_iqr", q.q1 === null || q.q3 === null ? "N/A" : formatNumber(q.q3 - q.q1));
+
+    const sortedView = document.getElementById("sortedView");
+    const sorted = numbers.slice().sort(function (a, b) {
+      return a - b;
+    });
+    sortedView.textContent = "Sorted data: " + sorted.map(formatNumber).join(", ");
+    sortedView.classList.add("show");
+
+    renderHistogram(numbers);
+    renderBoxPlot(numbers);
+    document.getElementById("vizContent").hidden = false;
+    document.getElementById("vizHint").textContent = "";
+
     tableEl.hidden = false;
   } catch (err) {
     errorEl.textContent = err.message;
     document.getElementById("parsedLine").textContent = "";
+    document.getElementById("sortedView").classList.remove("show");
+    document.getElementById("sortedView").textContent = "";
+    document.getElementById("vizContent").hidden = true;
+    document.getElementById("vizHint").textContent = "Press Calculate to see the histogram and box plot.";
     tableEl.hidden = true;
   }
 }
@@ -233,9 +367,42 @@ function clearAll() {
   document.getElementById("parsedLine").textContent = "";
   document.getElementById("resultTable").hidden = true;
   setExportStatus("");
+  document.getElementById("sortedView").classList.remove("show");
+  document.getElementById("sortedView").textContent = "";
+  document.getElementById("vizContent").hidden = true;
+  document.getElementById("vizHint").textContent = "Press Calculate to see the histogram and box plot.";
+  updateInputCount();
+}
+
+function updateInputCount() {
+  const el = document.getElementById("inputCount");
+  const value = document.getElementById("input").value;
+  if (String(value).trim() === "") {
+    el.textContent = "";
+    el.classList.remove("warn");
+    return;
+  }
+  try {
+    const nums = parseInput(value);
+    el.textContent = nums.length === 1 ? "1 value detected" : nums.length + " values detected";
+    el.classList.remove("warn");
+  } catch (e) {
+    el.textContent = "Some tokens look invalid — check your separators and numbers.";
+    el.classList.add("warn");
+  }
 }
 
 document.getElementById("btnCalc").addEventListener("click", calculate);
 document.getElementById("btnClear").addEventListener("click", clearAll);
 document.getElementById("btnCopy").addEventListener("click", handleCopy);
 document.getElementById("btnDownload").addEventListener("click", handleDownload);
+document.getElementById("btnSample").addEventListener("click", function () {
+  document.getElementById("input").value = "4, 8, 15, 16, 23, 42, 8, 16, 4, 11";
+  updateInputCount();
+});
+document.getElementById("input").addEventListener("input", updateInputCount);
+document.getElementById("input").addEventListener("keydown", function (e) {
+  if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+    calculate();
+  }
+});

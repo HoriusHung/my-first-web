@@ -17,9 +17,10 @@ It is built for students and anyone learning statistics: it shows not only the r
 
 ## Features
 
-- Flexible data input: separate numbers with spaces, commas, semicolons, or newlines.
-- Computes 12 statistics: count, sum, mean, median, mode, min, max, range, population variance, population standard deviation, sample variance, sample standard deviation.
+- Flexible data input: separate numbers with spaces, commas, semicolons, or newlines, plus a sample-data button and live value counting.
+- Computes 15 statistics: count, sum, mean, median, mode, min, max, range, Q1, Q3, IQR, population variance, population standard deviation, sample variance, sample standard deviation.
 - Clear "Parsed N numbers: ..." confirmation showing exactly how your input was read.
+- Sorted data view and SVG histogram + box plot visualizations.
 - Friendly, specific error messages that name the offending token.
 - Responsive, mobile-first layout with a clean, modern "scientific + cute" visual style.
 - Export results: copy a plain-text summary or download a CSV file.
@@ -37,6 +38,9 @@ It is built for students and anyone learning statistics: it shows not only the r
 | Minimum | min | Smallest value |
 | Maximum | max | Largest value |
 | Range | R | max − min |
+| Quartile 1 | Q1 | Median of the lower half of the sorted data (median excluded when n is odd) |
+| Quartile 3 | Q3 | Median of the upper half of the sorted data (median excluded when n is odd) |
+| Interquartile range | IQR | Q3 − Q1 |
 | Population variance | σ² | Σ (xᵢ − x̄)² / n |
 | Population standard deviation | σ | √(population variance) |
 | Sample variance | s² | Σ (xᵢ − x̄)² / (n − 1) |
@@ -78,8 +82,8 @@ That's it — no installation, no build step, no server.
 
 ## How to Use
 
-1. Enter or paste your numbers into the input box.
-2. Press **Calculate** to see the parsed-input line and the results table.
+1. Enter or paste your numbers into the input box (or press **Sample data**).
+2. Press **Calculate** (or **Ctrl/Cmd + Enter**) to see the parsed-input line, results, and visualizations.
 3. Press **Copy results** or **Download CSV** to export, or **Clear** to reset.
 
 ## Example
@@ -101,6 +105,9 @@ Expected output:
 - Minimum (min): 2
 - Maximum (max): 9
 - Range: 7
+- Q1: 4
+- Q3: 6
+- IQR: 2
 - Population variance: 4
 - Population standard deviation: 2
 - Sample variance: 4.571429
@@ -145,7 +152,7 @@ Expected results:
 
 | Input | Expected result |
 | --- | --- |
-| `2, 4, 4, 4, 5, 5, 7, 9` | n = 8, sum = 40, mean = 5, median = 4.5, mode = 4, min = 2, max = 9, range = 7, population variance = 4, population SD = 2, sample variance = 4.571429, sample SD = 2.13809 |
+| `2, 4, 4, 4, 5, 5, 7, 9` | n = 8, sum = 40, mean = 5, median = 4.5, mode = 4, min = 2, max = 9, range = 7, Q1 = 4, Q3 = 6, IQR = 2, population variance = 4, population SD = 2, sample variance = 4.571429, sample SD = 2.13809 |
 | `10, 9, 2` | median = 9 |
 | `1, 1, 2, 2, 3` | mode = "1, 2" |
 | `1, 2, 3, 4` | median = 2.5 |
