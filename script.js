@@ -152,15 +152,30 @@ function renderHistogram(numbers) {
     bins[i]++;
   });
   const maxBin = Math.max.apply(null, bins);
-  const plotW = W - 2 * PAD;
-  const plotH = H - 2 * PAD;
+  const LEFT = 38, RIGHT = 14, TOP = 14, BOTTOM = 42;
+  const plotW = W - LEFT - RIGHT;
+  const plotH = H - TOP - BOTTOM;
   const barW = plotW / binCount;
+
+  // Y axis: frequency, with a few light gridlines.
+  const yTicks = Math.min(4, maxBin) || 1;
+  for (let i = 0; i <= yTicks; i++) {
+    const value = Math.round((maxBin * i) / yTicks);
+    const y = TOP + plotH - (value / maxBin) * plotH;
+    svg.appendChild(svgEl("line", { x1: LEFT, y1: y, x2: W - RIGHT, y2: y, stroke: "#e2e8f0", "stroke-width": 1 }));
+    const yt = svgEl("text", { x: LEFT - 6, y: y + 4, "text-anchor": "end", "font-size": 10, fill: "#94a3b8" });
+    yt.textContent = value;
+    svg.appendChild(yt);
+  }
+  const yLabel = svgEl("text", { x: 12, y: TOP + plotH / 2, "font-size": 10, fill: "#64748b", transform: "rotate(-90 12 " + (TOP + plotH / 2) + ")", "text-anchor": "middle" });
+  yLabel.textContent = "Frequency";
+  svg.appendChild(yLabel);
 
   for (let i = 0; i < binCount; i++) {
     const h = (bins[i] / maxBin) * plotH;
     const rect = svgEl("rect", {
-      x: PAD + i * barW + 2,
-      y: PAD + (plotH - h),
+      x: LEFT + i * barW + 2,
+      y: TOP + (plotH - h),
       width: barW - 4,
       height: h,
       rx: 4,
@@ -173,7 +188,25 @@ function renderHistogram(numbers) {
     rect.appendChild(t);
     svg.appendChild(rect);
   }
-  svg.appendChild(svgEl("line", { x1: PAD, y1: PAD + plotH, x2: W - PAD, y2: PAD + plotH, stroke: "#94a3b8", "stroke-width": 1.5 }));
+
+  // X axis: bin edge labels (every other edge when crowded).
+  svg.appendChild(svgEl("line", { x1: LEFT, y1: TOP + plotH, x2: W - RIGHT, y2: TOP + plotH, stroke: "#94a3b8", "stroke-width": 1.5 }));
+  const step = binCount > 7 ? 2 : 1;
+  for (let i = 0; i <= binCount; i += step) {
+    const v = lo + i * binWidth;
+    const tx = svgEl("text", { x: LEFT + i * barW, y: TOP + plotH + 16, "text-anchor": "middle", "font-size": 10, fill: "#64748b" });
+    tx.textContent = formatNumber(v);
+    svg.appendChild(tx);
+  }
+  // Ensure the last edge is always shown.
+  if (binCount % step !== 0) {
+    const last = svgEl("text", { x: LEFT + plotW, y: TOP + plotH + 16, "text-anchor": "middle", "font-size": 10, fill: "#64748b" });
+    last.textContent = formatNumber(hi);
+    svg.appendChild(last);
+  }
+  const xLabel = svgEl("text", { x: LEFT + plotW / 2, y: H - 6, "text-anchor": "middle", "font-size": 10, fill: "#64748b" });
+  xLabel.textContent = "Value range (bin edges)";
+  svg.appendChild(xLabel);
 }
 
 function renderBoxPlot(numbers) {
@@ -187,7 +220,7 @@ function renderBoxPlot(numbers) {
   const hi = sorted[sorted.length - 1];
   const med = median(numbers);
   const q = quartiles(numbers);
-  const W = 560, PAD = 40, MID = 50;
+  const W = 560, PAD = 40;
   const span = hi === lo ? 1 : hi - lo;
 
   function x(v) {
@@ -197,6 +230,19 @@ function renderBoxPlot(numbers) {
   const q1 = q.q1 === null ? med : q.q1;
   const q3 = q.q3 === null ? med : q.q3;
 
+  const MID = 78;
+
+  // Numerical scale along the top.
+  const AXIS_Y = 26;
+  svg.appendChild(svgEl("line", { x1: x(lo), y1: AXIS_Y, x2: x(hi), y2: AXIS_Y, stroke: "#cbd5e1", "stroke-width": 1.5 }));
+  for (let i = 0; i <= 4; i++) {
+    const v = lo + (span * i) / 4;
+    svg.appendChild(svgEl("line", { x1: x(v), y1: AXIS_Y, x2: x(v), y2: AXIS_Y + 5, stroke: "#cbd5e1", "stroke-width": 1.5 }));
+    const tk = svgEl("text", { x: x(v), y: AXIS_Y - 8, "text-anchor": "middle", "font-size": 10, fill: "#94a3b8" });
+    tk.textContent = formatNumber(v);
+    svg.appendChild(tk);
+  }
+
   svg.appendChild(svgEl("line", { x1: x(lo), y1: MID, x2: x(hi), y2: MID, stroke: "#94a3b8", "stroke-width": 2 }));
   svg.appendChild(svgEl("line", { x1: x(lo), y1: MID - 14, x2: x(lo), y2: MID + 14, stroke: "#94a3b8", "stroke-width": 2 }));
   svg.appendChild(svgEl("line", { x1: x(hi), y1: MID - 14, x2: x(hi), y2: MID + 14, stroke: "#94a3b8", "stroke-width": 2 }));
@@ -204,17 +250,42 @@ function renderBoxPlot(numbers) {
   svg.appendChild(box);
   svg.appendChild(svgEl("line", { x1: x(med), y1: MID - 20, x2: x(med), y2: MID + 20, stroke: "#2563eb", "stroke-width": 3 }));
 
-  [
+  // Median label goes above the box so it never collides with Q1/Q3.
+  const medLabel = svgEl("text", { x: x(med), y: MID - 30, "text-anchor": "middle", "font-size": 11, "font-weight": 700, fill: "#2563eb" });
+  medLabel.textContent = "median=" + formatNumber(med);
+  svg.appendChild(medLabel);
+
+  // min / Q1 / Q3 / max labels are placed below, staggered into two rows
+  // so close values do not overlap.
+  const points = [
     { v: lo, label: "min" },
     { v: q1, label: "Q1" },
-    { v: med, label: "median" },
     { v: q3, label: "Q3" },
     { v: hi, label: "max" },
-  ].forEach(function (item) {
-    const t = svgEl("text", { x: x(item.v), y: MID + 40, "text-anchor": "middle", "font-size": 11, fill: "#475569" });
-    t.textContent = item.label + "=" + formatNumber(item.v);
-    svg.appendChild(t);
-  });
+  ];
+  const rows = [[], []]; // each row: last used right-edge x position
+  const placed = [null, null];
+  points
+    .slice()
+    .sort(function (a, b) {
+      return x(a.v) - x(b.v);
+    })
+    .forEach(function (item) {
+      const px = x(item.v);
+      let row = 0;
+      if (placed[0] !== null && px - placed[0] < 62) row = 1;
+      if (row === 1 && placed[1] !== null && px - placed[1] < 62) row = 0; // fall back; collisions still avoided in practice
+      placed[row] = px;
+      const t = svgEl("text", {
+        x: px,
+        y: MID + 38 + row * 18,
+        "text-anchor": "middle",
+        "font-size": 11,
+        fill: "#475569",
+      });
+      t.textContent = item.label + "=" + formatNumber(item.v);
+      svg.appendChild(t);
+    });
 }
 
 function setText(id, text) {
