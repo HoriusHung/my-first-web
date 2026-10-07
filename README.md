@@ -22,6 +22,7 @@ It is built for students and anyone learning statistics: it shows not only the r
 - Clear "Parsed N numbers: ..." confirmation showing exactly how your input was read.
 - Friendly, specific error messages that name the offending token.
 - Responsive, mobile-first layout with a clean, modern "scientific + cute" visual style.
+- Export results: copy a plain-text summary or download a CSV file.
 - Pure HTML/CSS/JavaScript — no frameworks, no libraries, no build step.
 
 ## Statistics / Calculations
@@ -63,6 +64,8 @@ my-first-web/
 ├── style.css    # Styles (responsive, mobile-first)
 ├── script.js    # Parsing, statistics, and UI logic
 ├── LICENSE      # MIT License
+├── docs/
+│   └── methodology.md  # Formulas and methodology
 └── README.md
 ```
 
@@ -73,12 +76,41 @@ my-first-web/
 
 That's it — no installation, no build step, no server.
 
-## Usage
+## How to Use
 
-1. Type or paste numbers into the input box.
-2. Press **Calculate**.
-3. Read the parsed-numbers line and the results table.
-4. Press **Clear** to reset.
+1. Enter or paste your numbers into the input box.
+2. Press **Calculate** to see the parsed-input line and the results table.
+3. Press **Copy results** or **Download CSV** to export, or **Clear** to reset.
+
+## Example
+
+Input:
+
+```text
+2, 4, 4, 4, 5, 5, 7, 9
+```
+
+Expected output:
+
+- Parsed 8 numbers: 2, 4, 4, 4, 5, 5, 7, 9
+- Count (n): 8
+- Sum: 40
+- Mean: 5
+- Median: 4.5
+- Mode: 4
+- Minimum (min): 2
+- Maximum (max): 9
+- Range: 7
+- Population variance: 4
+- Population standard deviation: 2
+- Sample variance: 4.571429
+- Sample standard deviation: 2.13809
+
+## Screenshot
+
+![App screenshot](docs/screenshot.png)
+
+> Replace `docs/screenshot.png` with an actual screenshot of the app.
 
 ## Input Rules
 
@@ -125,6 +157,10 @@ Expected results:
 | `-0.0000001` | mean shows `0` |
 | `0x10`, `Infinity`, `abc` | error naming the invalid token |
 | very long digit string (e.g. 400 digits) | error: number too large or infinite |
+
+## Documentation
+
+See [docs/methodology.md](docs/methodology.md) for the exact formulas, parsing rules, and formatting rules used by the calculator.
 
 ## License
 

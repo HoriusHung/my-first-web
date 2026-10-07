@@ -147,12 +147,95 @@ function calculate() {
   }
 }
 
+function collectResults() {
+  const rows = document.getElementById("resultTable").getElementsByTagName("tr");
+  const results = [];
+  for (let i = 0; i < rows.length; i++) {
+    const cells = rows[i].getElementsByTagName("th");
+    const values = rows[i].getElementsByTagName("td");
+    if (cells.length > 0 && values.length > 0) {
+      results.push({ label: cells[0].textContent, value: values[0].textContent });
+    }
+  }
+  return results;
+}
+
+function hasResults() {
+  return !document.getElementById("resultTable").hidden;
+}
+
+function setExportStatus(text) {
+  document.getElementById("exportStatus").textContent = text;
+}
+
+function handleCopy() {
+  if (!hasResults()) {
+    setExportStatus("No results to copy yet. Press Calculate first.");
+    return;
+  }
+  const lines = collectResults().map(function (r) {
+    return r.label + ": " + r.value;
+  });
+  const text = lines.join("\n");
+
+  function done() {
+    setExportStatus("Results copied to clipboard.");
+  }
+  function fallback() {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    let ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (e) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    setExportStatus(ok ? "Results copied to clipboard." : "Copy failed. Please copy manually.");
+  }
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done, fallback);
+  } else {
+    fallback();
+  }
+}
+
+function handleDownload() {
+  if (!hasResults()) {
+    setExportStatus("No results to download yet. Press Calculate first.");
+    return;
+  }
+  function csvField(s) {
+    return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  }
+  const lines = ["statistic,value"];
+  collectResults().forEach(function (r) {
+    lines.push(csvField(r.label) + "," + csvField(r.value));
+  });
+  const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "statistics.csv";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  setExportStatus("CSV downloaded.");
+}
+
 function clearAll() {
   document.getElementById("input").value = "";
   document.getElementById("error").textContent = "";
   document.getElementById("parsedLine").textContent = "";
   document.getElementById("resultTable").hidden = true;
+  setExportStatus("");
 }
 
 document.getElementById("btnCalc").addEventListener("click", calculate);
 document.getElementById("btnClear").addEventListener("click", clearAll);
+document.getElementById("btnCopy").addEventListener("click", handleCopy);
+document.getElementById("btnDownload").addEventListener("click", handleDownload);
