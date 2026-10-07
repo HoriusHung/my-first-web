@@ -230,10 +230,10 @@ function renderBoxPlot(numbers) {
   const q1 = q.q1 === null ? med : q.q1;
   const q3 = q.q3 === null ? med : q.q3;
 
-  const MID = 78;
+  const MID = 66;
 
   // Numerical scale along the top.
-  const AXIS_Y = 26;
+  const AXIS_Y = 22;
   svg.appendChild(svgEl("line", { x1: x(lo), y1: AXIS_Y, x2: x(hi), y2: AXIS_Y, stroke: "#cbd5e1", "stroke-width": 1.5 }));
   for (let i = 0; i <= 4; i++) {
     const v = lo + (span * i) / 4;
@@ -263,8 +263,7 @@ function renderBoxPlot(numbers) {
     { v: q3, label: "Q3" },
     { v: hi, label: "max" },
   ];
-  const rows = [[], []]; // each row: last used right-edge x position
-  const placed = [null, null];
+  const rows = []; // each row: right-edge x already used in that row
   points
     .slice()
     .sort(function (a, b) {
@@ -273,12 +272,16 @@ function renderBoxPlot(numbers) {
     .forEach(function (item) {
       const px = x(item.v);
       let row = 0;
-      if (placed[0] !== null && px - placed[0] < 62) row = 1;
-      if (row === 1 && placed[1] !== null && px - placed[1] < 62) row = 0; // fall back; collisions still avoided in practice
-      placed[row] = px;
+      while (row < rows.length && px - rows[row] < 62) row++;
+      rows[row] = px;
+      const labelY = MID + 38 + row * 18;
+      // Leader line ties the label to its true position when it is on a lower row.
+      if (row > 0) {
+        svg.appendChild(svgEl("line", { x1: px, y1: MID + 14, x2: px, y2: labelY - 12, stroke: "#cbd5e1", "stroke-width": 1, "stroke-dasharray": "3 3" }));
+      }
       const t = svgEl("text", {
         x: px,
-        y: MID + 38 + row * 18,
+        y: labelY,
         "text-anchor": "middle",
         "font-size": 11,
         fill: "#475569",
@@ -445,6 +448,56 @@ function clearAll() {
   updateInputCount();
 }
 
+let lastSample = "";
+
+function randInt(a, b) {
+  return a + Math.floor(Math.random() * (b - a + 1));
+}
+
+function generateSample() {
+  const patterns = ["balanced", "spread", "skewed", "repeats", "wide"];
+  let candidate = "";
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const pattern = patterns[randInt(0, patterns.length - 1)];
+    const n = randInt(8, 15);
+    const values = [];
+
+    if (pattern === "balanced") {
+      const center = randInt(10, 30);
+      for (let i = 0; i < n; i++) values.push(Math.max(1, center + randInt(-8, 8)));
+    } else if (pattern === "spread") {
+      const start = randInt(2, 10);
+      const step = randInt(2, 6);
+      for (let i = 0; i < n; i++) values.push(start + i * step + randInt(-2, 2));
+    } else if (pattern === "skewed") {
+      const base = randInt(5, 15);
+      for (let i = 0; i < n; i++) {
+        values.push(i < n - 2 ? base + randInt(-3, 3) : base + randInt(15, 30));
+      }
+    } else if (pattern === "repeats") {
+      const common = randInt(5, 25);
+      for (let i = 0; i < n; i++) {
+        values.push(Math.random() < 0.5 ? common : randInt(1, 50));
+      }
+    } else {
+      // wide range, some decimals
+      for (let i = 0; i < n; i++) {
+        let v = randInt(1, 80);
+        values.push(Math.random() < 0.3 ? Math.round(v * 10 + randInt(0, 9)) / 10 : v);
+      }
+    }
+
+    candidate = values.join(", ");
+    if (candidate !== lastSample) {
+      lastSample = candidate;
+      return candidate;
+    }
+  }
+  // Practically unreachable: use the last generated candidate anyway.
+  lastSample = candidate;
+  return candidate;
+}
+
 function updateInputCount() {
   const el = document.getElementById("inputCount");
   const value = document.getElementById("input").value;
@@ -468,7 +521,7 @@ document.getElementById("btnClear").addEventListener("click", clearAll);
 document.getElementById("btnCopy").addEventListener("click", handleCopy);
 document.getElementById("btnDownload").addEventListener("click", handleDownload);
 document.getElementById("btnSample").addEventListener("click", function () {
-  document.getElementById("input").value = "4, 8, 15, 16, 23, 42, 8, 16, 4, 11";
+  document.getElementById("input").value = generateSample();
   updateInputCount();
 });
 document.getElementById("input").addEventListener("input", updateInputCount);

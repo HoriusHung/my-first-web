@@ -80,7 +80,7 @@ Both charts are rebuilt from the parsed data each time **Calculate** is pressed 
 
 ## Extras
 
-- **Sample data** button fills the input with `4, 8, 15, 16, 23, 42, 8, 16, 4, 11`.
+- **Sample data** button fills the input with a randomly generated dataset (8–15 values, mostly integers, several patterns: balanced, spread, skewed, repeated values, wide range). Clicking it again generates a different dataset.
 - **Ctrl/Cmd + Enter** inside the textarea triggers calculation.
 - A live counter under the textarea shows how many values were detected, or a warning when some tokens look invalid.
 - A sorted-data line appears above the results after each calculation.
