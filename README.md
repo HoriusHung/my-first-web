@@ -108,9 +108,7 @@ Expected output:
 
 ## Screenshot
 
-![App screenshot](docs/screenshot.png)
-
-> Replace `docs/screenshot.png` with an actual screenshot of the app.
+![Factory Dashboard Simulator](docs/screenshot.png)
 
 ## Input Rules
 
